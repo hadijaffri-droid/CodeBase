@@ -81,6 +81,7 @@ void setup()
 
 void loop()
 {
+  Serial.println("heyy");
   moveToSwitch(left_button, DIR_RIGHT);  // move towards A, DIR_RIGHT moves the stepper CCW
   stepper.setCurrentPosition(0); // reset position
   moveToSwitch(right_button,DIR_LEFT);  // move towards B , a DIR_LEFT moves the stepper CW
