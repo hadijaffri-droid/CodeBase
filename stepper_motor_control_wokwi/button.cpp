@@ -1,0 +1,97 @@
+#include "Button.h"
+
+bool PRESSED = false;  // button pin pulled up to 5V if button not pressed, meaning the button is active LOW
+bool UNPRESSED = true;
+
+Button::Button(const char* name, uint8_t buttonPin, int debounceDelay):
+pin(buttonPin),
+debounceDelay(debounceDelay), // default 50 ms
+lastReading(HIGH),            // INPUT_PULLUP -> default unpressed = HIGH, for our configuration its default pressed = LOW
+isActiveVar(false),           // not pressed
+lastChangeTime(0),
+buttonName(name)
+{
+  usedPinsArr[0] = {buttonPin};
+  pinMode(buttonPin, INPUT_PULLUP); // change pinMode from input pull up to input for the buttons in use
+}
+
+// Button::~Button(){}
+
+uint8_t Button::pinGet(){
+  return pin;
+}
+
+
+void Button::debounceDelaySet(int delayIn_ms){
+    debounceDelay = delayIn_ms;
+}
+
+int Button::debounceDelayGet(){
+  return debounceDelay;
+}
+
+bool Button::buttonChangedState() {
+    //Serial.begin(9600);
+    //Serial.print("Button changed state called");
+    unsigned long now = millis();
+    bool reading = digitalRead(pin);   // raw input
+    //Serial.print(String("reading: ") + reading);
+    //Serial.println(String("; lastReading: ") + lastReading);
+
+    // If the reading changed, reset the debounce timer
+    if (reading != lastReading) {
+        lastChangeTime = now;
+        lastReading = reading;
+    }
+
+    // Has the reading been stable long enough?
+    if ((now - lastChangeTime) > (unsigned long)debounceDelay) {
+        // interpret raw reading to 'pressed' boolean
+        bool pressed = (reading == LOW );   // with INPUT_PULLUP: LOW = pressed, with our button pressed = HIGH
+
+        if (pressed != isActiveVar) {
+            // state changed
+            isActiveVar = pressed;
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool Button::isActive(bool updateState) {
+  if (updateState){
+    buttonChangedState();
+  }
+  return isActiveVar;
+}
+
+bool Button::isActive(){
+  return isActive(true);
+}
+
+bool Button::buttonWasPressed(){
+  if (buttonChangedState() && isActiveVar){
+    Serial.print("Button ");
+    Serial.print(this->getName());
+    Serial.println(" pressed");
+    return true;
+  } else {
+    return false;
+  }
+}
+
+bool Button::buttonWasUnpressed(){
+  if (buttonChangedState() && !isActiveVar){
+    Serial.print("Button ");
+    Serial.print(this->getName());
+    Serial.println(" unpressed");
+    return true;
+  } else {
+    return false;
+  }
+}
+
+const char* Button::getName() const {
+  return buttonName;
+}

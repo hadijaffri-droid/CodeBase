@@ -1,0 +1,12 @@
+Problem:
+attachInterrupt expects a pointer to a static function, i.e it expects the ISR to be static. The moment we pass an object method ( ISR of an object in our case) we break the rule. The ISR must be static. So we make a static InterruptWrapper, which calls the ISR of our class
+There are two approaches from this point on.
+ 1: Use an instance pointer 
+ what happens
+ attachInterrupt calls InterruptWrapper(a static function pointer, non negotiable). Interrupt wrapper calls the non-static ISR via an object pointer. Because Interrupt wrapper is static, it must use
+ a static variable. The static variable in this case is a pointer to the instance of the interrupt button (button 3).
+ 
+ 2: Dont use instance pointer
+ what happens
+ In this case we make handleInterrupt static, because interruptWrapper is static too. Making handleInterrupt static would mean we would have to make
+ the bool variable pressed static too. This would make it shared across every class ( not a good practice) .

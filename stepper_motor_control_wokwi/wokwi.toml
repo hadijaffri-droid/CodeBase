@@ -1,0 +1,4 @@
+[wokwi]
+version = 1
+firmware = "stepper_motor_test.ino.hex"
+elf = "stepper_motor_test.ino.elf"

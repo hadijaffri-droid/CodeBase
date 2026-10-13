@@ -1,0 +1,19 @@
+{
+	"folders": [
+		{
+			"path": "Stepper_Motor"
+		},
+		{
+			"name": "Stepper_motor_control_V2",
+			"path": "Stepper_motor_control_V2"
+		},
+		{
+			"path": "PWM_XY_test"
+		},
+		{
+			"name": "DC_Motor_Control",
+			"path": "DC_Motor_Control"
+		}
+	],
+	"settings": {}
+}
