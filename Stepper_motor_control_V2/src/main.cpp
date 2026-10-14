@@ -87,7 +87,7 @@ void loop()
   moveToSwitch(right_button,DIR_LEFT);  // move towards B , a DIR_LEFT moves the stepper CW
   long middlePosition = (stepper.currentPosition()/2); // calculate Middle position
   moveToPositionRelative(DIR_LEFT*middlePosition); // move to middle position after reaching B
-  STEPS_X_DEGREE_MOVEMENT = degree_to_steps(45);
+  STEPS_X_DEGREE_MOVEMENT = degree_to_steps(45);   
   moveToPositionRelative(DIR_RIGHT*STEPS_X_DEGREE_MOVEMENT); // Move Initial - 45 degrees
   Oscillate_Relative(OSCILLATIONS,90);
   currentCycleCount++; // increment count

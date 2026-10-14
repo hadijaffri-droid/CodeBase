@@ -3,6 +3,11 @@
 #include <Arduino.h>
 #include <string.h>
 #include "Shield_Base.h"
+/**************************************************************************/
+/*!
+    @brief  PWM class based on the PWM XY module. Has methods to communicate with the shield via serial buffer to get or set frequency and duty cycle
+*/
+/**************************************************************************/
 class PWM_XY_Shield: public ShieldBase
 {
   public:
