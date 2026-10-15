@@ -33,6 +33,7 @@ const long  MOTOR_ACCLERATION_STEPS_PER_SECOND_SQUARED =2000;
 const long STEPS_PER_ROTATION = 10000;
 long STEPS_X_DEGREE_MOVEMENT= 0;
 char TimeBuffer[30];
+
 //-- CREATE OBJECTS --
 AccelStepper stepper(1, STEP_PIN,DIR_PIN); //(1) means a stepper driver (with Step and Direction pins).
 CounterStore counterStore;
