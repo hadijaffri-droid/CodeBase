@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <string.h>
 #include "Shield_Base.h"
+// find a way to properly, return the frequency, test with an oscilloscope if the set frequency is correct
 class PWM_XY_Shield: public ShieldBase
 {
   public:
@@ -18,17 +19,17 @@ class PWM_XY_Shield: public ShieldBase
     bool setFrequency(uint32_t hz);
     bool setDutyCycle(uint8_t percentage);
     bool setMode(int mode);
-    double get_frequency();
-    uint16_t get_dutyCycle();
-    char const* read_response();
+    float getFrequency();
+    uint16_t getDutyCycle();
+    char const* readResponseBuffer();
   private:
     Stream& _ser;
     const uint8_t usedPinsArr[2];
     char command_buffer[15];
     char response_buffer[30];
-    char freq[15];
-    char duty[15];
+    char duty_buffer[15];
     int response_buffer_count;
     uint32_t _maxFrequency;
+    float freq_value;
 };
 #endif

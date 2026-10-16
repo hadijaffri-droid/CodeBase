@@ -8,37 +8,34 @@ PWM_XY_Shield::PWM_XY_Shield(Stream& serial, const char* name) :ShieldBase(name)
   response_buffer_count = 0;
   snprintf(command_buffer, sizeof(command_buffer), "ON");
 }
-uint16_t PWM_XY_Shield:: get_dutyCycle()
+uint16_t PWM_XY_Shield:: getDutyCycle()
 {
   _ser.print("READ");
-  const char* response = read_response();
+  const char* response = readResponseBuffer();
   // pointer math below:
-  // response contains frequeny (starting with F) and duty information (staring with D) separated by a null terminator '\0' 
-  // response points to the start of the character buffer
+  // response contains frequeny (starting with F) and duty_buffer information (staring with D) separated by a null terminator '\0' 
+  // response points to the start of the character buffer/array
   // strlen calculates the array size uptil (not including) the first null terminator
-  // add + 2 to skip the null terminator and char 'D' and land on the digits after D
+  // add + 2 to skip the null terminator and char 'D' and then land on the digits after D
   const char* duty_start = response+strlen(response)+2; 
-  strcpy(duty,duty_start); // copies the char array
-  uint16_t duty_value = strtoul(duty,nullptr,10); // stroul = string to long integer
+  strcpy(duty_buffer,duty_start); // copies the char array
+  uint16_t duty_value = strtoul(duty_buffer,nullptr,10); // stroul = string to long integer
   Serial.println(duty_value);
   return duty_value;
   return 0;
 }
-double PWM_XY_Shield::get_frequency()
+float PWM_XY_Shield::getFrequency()
 {
   _ser.print("READ");
-  const char *response = read_response();
-  strcpy(freq,response+1);
-  double freq_value = std::stod(freq); // stod = string to double
-  Serial.println(freq_value);
-  return freq_value;
-  return 0;
+  readResponseBuffer(); // purpose is to just empty the response buffer
+  return freq_value; // return the value set during setFrequency function call
 }
 bool PWM_XY_Shield::setFrequency(uint32_t hz)
 {
+  freq_value = hz;
   snprintf(command_buffer, sizeof(command_buffer), "F%03u", (unsigned)hz);
   _ser.print(command_buffer);
- const char* response=read_response();
+ const char* response=readResponseBuffer();
  if(strcmp(response,"DOWN")== 0)
  {
   return true;
@@ -52,7 +49,7 @@ bool PWM_XY_Shield::setDutyCycle(uint8_t percentage)
 {
   snprintf(command_buffer, sizeof(command_buffer), "D%03u",(unsigned)percentage);
  _ser.print(command_buffer);
- const char* response=read_response();
+ const char* response=readResponseBuffer();
  if(strcmp(response,"DOWN")== 0)
  {
   return true;
@@ -62,7 +59,7 @@ bool PWM_XY_Shield::setDutyCycle(uint8_t percentage)
   return false;
  }
 }
-const char* PWM_XY_Shield::read_response()
+const char* PWM_XY_Shield::readResponseBuffer()
 {
   response_buffer_count= 0;
   uint32_t start = millis();

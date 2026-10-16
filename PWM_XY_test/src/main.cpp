@@ -3,15 +3,18 @@
 #include "PWM_XY_Shield_cpp.h"
 PWM_XY_Shield PWM(Serial1);
 void setup() {
-  // Channel A: USB Communication with my computer
-  Serial.begin(9600);
-  delay(2000);
+  Serial.begin(115200);
+  while(!Serial)
+  {
+    delay(10);
+  }
+  Serial.println("Starting routine!!");
   Serial1.begin(9600);
-  PWM.setDutyCycle(17);
-  PWM.setFrequency(2800);
-  PWM.get_frequency();
-  PWM.get_dutyCycle();
   PWM.setMode(1);
+  PWM.setDutyCycle(68);
+  PWM.setFrequency(75);
+  float f_val = PWM.getFrequency();
+  Serial.println(f_val);
 }
 void loop() 
 {
