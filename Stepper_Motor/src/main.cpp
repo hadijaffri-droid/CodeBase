@@ -25,8 +25,8 @@ long steps_45_degree_movement = 0;            // Globalized so both loop and hel
 String lcd_string = "";
 volatile unsigned long lastInterrupt= 0;
 volatile bool state = true;
-AccelStepper stepper(1, step_pin, dir_pin); // stepper uses an internal driver, use 1 as the first parameter for the stepper
-CounterStore counterStore;
+AccelStepper Stepper(1, step_pin, dir_pin); // stepper uses an internal driver, use 1 as the first parameter for the stepper
+CounterStore CounterStore;
 
 // create a button object,  need 2 pins for each button
 Button left_button("Left_button", END_SWITCH_RIGHT_PIN,50); // left button has pin 3 for interrupt, pin 4 for power which is not used since we will use a 5v rail
@@ -53,18 +53,18 @@ void setup()
   digitalWrite(enable_pin, HIGH); 
   pinMode(PAUSE_BUTTON,INPUT_PULLUP);
   attachInterrupt(digitalPinToInterrupt(PAUSE_BUTTON),pause,FALLING);
-  stepper.setCurrentPosition(0);
-  stepper.setMaxSpeed(1000);
-  stepper.setAcceleration(200); 
-  stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);  // Start moving toward switch A
+  Stepper.setCurrentPosition(0);
+  Stepper.setMaxSpeed(1000);
+  Stepper.setAcceleration(200); 
+  Stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);  // Start moving toward switch A
   Serial.begin(9600); 
   delay(500);
   lcd.init();
-  counterStore.begin();
+  CounterStore.begin();
 
   const char firmwareId[] = __DATE__ " " __TIME__;
-   if (!counterStore.resetIfFirmwareChanged(firmwareId, START_CYCLE_INDEX)) {
-    counterStore.loadLatest(currentCycleCount);
+   if (!CounterStore.resetIfFirmwareChanged(firmwareId, START_CYCLE_INDEX)) {
+    CounterStore.loadLatest(currentCycleCount);
     
     nextState = MOVING_TO_SWITCH_A; 
     currentState = PAUSED;
@@ -97,33 +97,33 @@ void loop()
   switch(currentState) 
   {
     case MOVING_TO_SWITCH_A:
-      stepper.runSpeed(); 
+      Stepper.runSpeed(); 
       
       if (left_button.buttonWasPressed()) 
       {
        // need to reset the interrupt flag
         Serial.println("Switch A reached. Resetting zero point");
         
-        stepper.setCurrentPosition(0); 
-        stepper.setSpeed(-MOTOR_SPEED_STEPS_PER_SECOND); // Reverse direction towards switch B
+        Stepper.setCurrentPosition(0); 
+        Stepper.setSpeed(-MOTOR_SPEED_STEPS_PER_SECOND); // Reverse direction towards switch B
         
         currentState = MOVING_TO_SWITCH_B; 
       }
       break;
 
     case MOVING_TO_SWITCH_B:
-      stepper.runSpeed(); 
+      Stepper.runSpeed(); 
       
       if (right_button.buttonWasPressed()) 
       {
         
-        totalStepsMoved = -1 * stepper.currentPosition(); // total steps moved is a positive value, since current position gave a negative value
+        totalStepsMoved = -1 * Stepper.currentPosition(); // total steps moved is a positive value, since current position gave a negative value
         
         Serial.println("Right limit (Switch 1) Reached!");
         Serial.print("Total Steps Moved between limits: ");
         Serial.println(totalStepsMoved);
         
-        stepper.setCurrentPosition(0);        // Set absolute coordinate origin at Switch 1
+        Stepper.setCurrentPosition(0);        // Set absolute coordinate origin at Switch 1
         targetPosition = totalStepsMoved / 2; // Midpoint distance calculation
         
         // Compute our 45-degree scale dynamically based on the current scan
@@ -183,14 +183,14 @@ void loop()
         lcd.write_center(2,"PAUSED");
         Serial.println("Paused");
         nextState=MOVING_TO_SWITCH_A;
-        stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);
+        Stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);
         currentState=PAUSED;
 
       }
       else
       {
         currentState = MOVING_TO_SWITCH_A;
-        stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);
+        Stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);
       }
       break;
       case PAUSED:
@@ -214,21 +214,21 @@ void loop()
  * Helper function to command a relative movement and block until execution completes.
  */
 void moveAndRun(long steps) {
-  stepper.setCurrentPosition(0);
-  stepper.moveTo(steps);
+  Stepper.setCurrentPosition(0);
+  Stepper.moveTo(steps);
   /*Serial.print("Steps = ");
   Serial.println(steps);
   Serial.print("Distance to go = ");
   Serial.println(stepper.distanceToGo());*/
-  while (stepper.distanceToGo() != 0) {
-    stepper.runSpeed(); // non blocking , must be called repeatedly
+  while (Stepper.distanceToGo() != 0) {
+    Stepper.runSpeed(); // non blocking , must be called repeatedly
   }
 }
 
 void moveUntilSwitch(Button& limitSwitch, float speed) {
-  stepper.setSpeed(speed);
+  Stepper.setSpeed(speed);
   while (!limitSwitch.isActive()) {
-    stepper.runSpeed();
+    Stepper.runSpeed();
   }
 }
 
@@ -261,7 +261,7 @@ void showCycleCount() {
 }
 
 void saveCycleCount() {
-  if (!counterStore.save(currentCycleCount)) {
+  if (!CounterStore.save(currentCycleCount)) {
     Serial.println("Warning: cycle counter could not be saved to EEPROM");
   }
 }

@@ -26,7 +26,7 @@ class PWM_XY_Shield: public ShieldBase
     Stream& _ser;
     const uint8_t usedPinsArr[2];
     char command_buffer[15];
-    char response_buffer[30];
+    char response_buffer[20];
     char duty_buffer[15];
     int response_buffer_count;
     uint32_t _maxFrequency;

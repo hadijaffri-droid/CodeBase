@@ -9,6 +9,7 @@
 #include "LoopTimer.h"
 
 // -- PARAMETER START
+
 const uint8_t DIR_PIN = 7;  // green
 const uint8_t STEP_PIN= 8;  // white
 const uint8_t ENABLE_PIN = 11;  // grey
@@ -17,18 +18,22 @@ const uint8_t END_SWITCH_RIGHT_PIN = 12;
 const uint8_t INTERRUPT_BUTTON =2;
 const int OSCILLATIONS = 5;
 const long TOTAL_CYCLES=2000;
+const uint32_t START_CYCLE_INDEX = 0; // Used after a new upload/build is detected
+uint32_t currentCycleCount = START_CYCLE_INDEX;
+
+// --MOTOR PARAMETER
+
 const long MOTOR_MAX_SPEED_STEPS_PER_SECOND = 3000;
 const long  MOTOR_SPEED_STEPS_PER_SECOND=2000;
 const long  MOTOR_ACCLERATION_STEPS_PER_SECOND_SQUARED =2000;
-const uint32_t START_CYCLE_INDEX = 0; // Used after a new upload/build is detected
-uint32_t currentCycleCount = START_CYCLE_INDEX;
+const long STEPS_PER_ROTATION = 10000;
+
 // --PARAMETER END /////
 
 //--- CONFIGURATION ---
-const long STEPS_PER_ROTATION = 10000;
 long steps_x_degree_movement= 0;
-const int dir_left = -1;
-const int dir_right = 1;
+const int CLOCKWISE = -1;
+const int COUNTER_CLOCKWISE = 1;
 char time_char_buffer[30];
 int lcd_rows = 4;
 int lcd_columns = 20;
@@ -36,7 +41,7 @@ uint8_t lcd_address = 0x27;
 int angle_ninety_degrees = 90;
 
 //-- CREATE OBJECTS --
-AccelStepper stepper(1, STEP_PIN,DIR_PIN); //(1) means a stepper driver (with Step and Direction pins).
+AccelStepper Stepper(1, STEP_PIN,DIR_PIN); //(1) means a stepper driver (with Step and Direction pins).
 CounterStore counterStore;
 Button Left_button("LEFT_BUTTON", END_SWITCH_LEFT_PIN,200); 
 Button Right_button("RIGHT_BUTTON", END_SWITCH_RIGHT_PIN,200); 
@@ -56,15 +61,16 @@ void show_time_left_on_console();
 void motor_enable(bool set_motor);
 long degree_to_steps(int);
 void show_time_left_on_lcd(); 
+
 void setup()
 {
   Serial.begin(115200); 
   delay(500);
   pinMode(ENABLE_PIN, OUTPUT); 
   motor_enable(HIGH);
-  stepper.setMaxSpeed(MOTOR_MAX_SPEED_STEPS_PER_SECOND);
-  stepper.setAcceleration(MOTOR_ACCLERATION_STEPS_PER_SECOND_SQUARED); 
-  stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);
+  Stepper.setMaxSpeed(MOTOR_MAX_SPEED_STEPS_PER_SECOND);
+  Stepper.setAcceleration(MOTOR_ACCLERATION_STEPS_PER_SECOND_SQUARED); 
+  Stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND);
   lcd.init();
   counterStore.begin();
   Interrupt_button.begin(true); // interrupts is being attached here
@@ -83,15 +89,15 @@ void setup()
 
 void loop()
 {
-  moveToSwitch(Left_button, dir_right);  // move towards A, dir_right moves the stepper CCW
-  stepper.setCurrentPosition(0); // reset position
-  moveToSwitch(Right_button,dir_left);  // move towards B , a dir_left moves the stepper CW
-  long middlePosition = (stepper.currentPosition()/2); // calculate Middle position
-  moveStepsRelative(middlePosition,dir_left); // move to middle position after reaching B
+  moveToSwitch(Left_button, COUNTER_CLOCKWISE);
+  Stepper.setCurrentPosition(0); // reset position
+  moveToSwitch(Right_button,CLOCKWISE);
+  long steps_to_middle_position = (Stepper.currentPosition()/2);
+  moveStepsRelative(steps_to_middle_position,CLOCKWISE); // move to middle position after reaching B
   steps_x_degree_movement = degree_to_steps(45);
-  moveStepsRelative(steps_x_degree_movement,dir_right); // Move Initial - 45 degrees
-  oscillate_Relative(OSCILLATIONS,angle_ninety_degrees,dir_left); // start CCW
-  currentCycleCount++; // increment count
+  moveStepsRelative(steps_x_degree_movement,COUNTER_CLOCKWISE); // Move Initial - 45 degrees
+  oscillate_Relative(OSCILLATIONS,angle_ninety_degrees,CLOCKWISE);
+  currentCycleCount++;
   saveCycleCount(currentCycleCount); 
   showCycleCount(currentCycleCount);
   Timer.update(currentCycleCount);
@@ -105,11 +111,12 @@ void loop()
   }
 }
 
-void moveStepsRelative(long position, int direction = 1)
+void moveStepsRelative(long steps_to_move, int direction = 1)
 {
-  stepper.setCurrentPosition(0);
-  stepper.moveTo(direction*position);
-  while(stepper.distanceToGo() != 0)
+  long current_position = Stepper.currentPosition();
+  long target_position= current_position+ steps_to_move;
+  Stepper.moveTo(direction*target_position);
+  while(Stepper.distanceToGo() != 0)
   {
     if(Interrupt_button.get_pause_state())
     {
@@ -120,9 +127,9 @@ void moveStepsRelative(long position, int direction = 1)
      }
     Serial.println("==RESUMED==");
     lcd_row_clear(2);
-    stepper.moveTo(position); // recalcualte the position of the stepper when you move out
+    Stepper.moveTo(steps_to_move); // recalcualte the position of the stepper when you move out
     } 
-    stepper.run(); // does not use acceleration profile. Runs to target at constant speed set by setSpeed(). Is non Blocking
+    Stepper.run(); // does not use acceleration profile. Runs to target at constant speed set by setSpeed(). Is non Blocking
   }
   //stepper.runToPosition();
 }
@@ -133,8 +140,8 @@ lcd_row_clear(1);
 long angle_in_steps = degree_to_steps(distance_in_angle);
 for (int i = 0; i < repititions;i++)
 {
-  moveStepsRelative(angle_in_steps,oscillation_start_direction); // move clockwise
-  moveStepsRelative(angle_in_steps,-oscillation_start_direction);  // move counter clockwise
+  moveStepsRelative(angle_in_steps,oscillation_start_direction); 
+  moveStepsRelative(angle_in_steps,-oscillation_start_direction);
   String lcd_string = "Osc = "+String(i+1);
   lcd.write_center(1,lcd_string.c_str());
 }
@@ -142,15 +149,15 @@ for (int i = 0; i < repititions;i++)
 
 void moveToSwitch(Button& LimitSwitch, const int dir)
 {
-  if(dir == dir_right)
+  if(dir == COUNTER_CLOCKWISE)
   {
      Serial.println("Set direction counter clockwise");
-     stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND); // positive Speed moves counter clockwise
+     Stepper.setSpeed(MOTOR_SPEED_STEPS_PER_SECOND); // positive Speed moves counter clockwise
   }
-  else if(dir == dir_left)
+  else if(dir == CLOCKWISE)
   {
      Serial.println("Set direction clockwise");
-     stepper.setSpeed(-1*MOTOR_SPEED_STEPS_PER_SECOND); // negative Speed moves clockwise
+     Stepper.setSpeed(-1*MOTOR_SPEED_STEPS_PER_SECOND); // negative Speed moves clockwise
   }
   while(!LimitSwitch.isActive())
   {
@@ -166,7 +173,7 @@ void moveToSwitch(Button& LimitSwitch, const int dir)
       Serial.println("==RESUMED==");
       lcd_row_clear(2);
     }
-    stepper.runSpeed(); // runSpeed runs infinitely, does not respect the targetPosition
+    Stepper.runSpeed(); // runSpeed runs infinitely, does not respect the targetPosition
   }
 
 }
