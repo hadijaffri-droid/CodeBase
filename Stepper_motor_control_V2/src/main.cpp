@@ -50,8 +50,9 @@ LCD_I2C lcd(lcd_address,lcd_columns,lcd_rows);
 LoopTimer Timer;
 
 // HELPER FUNCTION PROTOTYPTES
+
 void moveStepsRelative(long position, int direction  = 1 );
-void oscillate_Relative(int repititions,long distance_in_angle, int oscillation_start_direction); // changed the function arguments
+void oscillate_Relative(int repititions,long distance_in_angle, int oscillation_start_direction);
 void moveToSwitch(Button& LimitSwitch, const int direction);
 void showCycleCount(uint32_t count);
 void saveCycleCount(uint32_t count);
