@@ -95,7 +95,7 @@ void loop()
   long steps_to_middle_position = (Stepper.currentPosition()/2);
   moveStepsRelative(steps_to_middle_position,CLOCKWISE); // move to middle position after reaching B
   steps_x_degree_movement = degree_to_steps(45);
-  moveStepsRelative(steps_x_degree_movement,COUNTER_CLOCKWISE); // Move Initial - 45 degrees
+  moveStepsRelative(steps_x_degree_movement,COUNTER_CLOCKWISE); // Move Initial 45 degrees
   oscillate_Relative(OSCILLATIONS,angle_ninety_degrees,CLOCKWISE);
   currentCycleCount++;
   saveCycleCount(currentCycleCount); 
@@ -111,11 +111,10 @@ void loop()
   }
 }
 
-void moveStepsRelative(long steps_to_move, int direction = 1)
+void moveStepsRelative(long steps_to_move, int direction)
 {
-  long current_position = Stepper.currentPosition();
-  long target_position= current_position+ steps_to_move;
-  Stepper.moveTo(direction*target_position);
+  //Stepper.setCurrentPosition(0);
+  Stepper.move(direction*steps_to_move);
   while(Stepper.distanceToGo() != 0)
   {
     if(Interrupt_button.get_pause_state())
@@ -127,11 +126,10 @@ void moveStepsRelative(long steps_to_move, int direction = 1)
      }
     Serial.println("==RESUMED==");
     lcd_row_clear(2);
-    Stepper.moveTo(steps_to_move); // recalcualte the position of the stepper when you move out
+    Stepper.move(direction*steps_to_move); // recalculate the position of the stepper when you move out
     } 
-    Stepper.run(); // does not use acceleration profile. Runs to target at constant speed set by setSpeed(). Is non Blocking
+    Stepper.run(); // uses acceleration profile, is non blocking, must be called repeatedly
   }
-  //stepper.runToPosition();
 }
 
 void oscillate_Relative(int repititions,long distance_in_angle, int oscillation_start_direction)
