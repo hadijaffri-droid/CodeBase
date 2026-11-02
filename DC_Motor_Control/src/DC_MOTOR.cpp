@@ -14,7 +14,7 @@ void DC_MOTOR::set_Motor_frequency (uint32_t Hz)
    result = pwm.setFrequency(Hz);
    if(result)
    {
-    Serial.println("Duty Cycel set sucessfully!!");
+    Serial.println("Duty Cycle set sucessfully!!");
    }
    else
    {
@@ -47,8 +47,7 @@ void DC_MOTOR::init ()
 
 void DC_MOTOR::stop ()
 {
-  pwm.setFrequency(0);
-  pwm.setDutyCycle(0);
+  
 }
 
 void DC_MOTOR::spin_clockwise(uint32_t hz,uint8_t percentage)

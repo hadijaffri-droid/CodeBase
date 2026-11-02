@@ -22,6 +22,8 @@ class PWM_XY_Shield: public ShieldBase
     float getFrequency();
     uint16_t getDutyCycle();
     char const* readResponseBuffer();
+    void pwm_enable();
+    void pwm_disable();
   private:
     Stream& _ser;
     const uint8_t usedPinsArr[2];
@@ -31,5 +33,6 @@ class PWM_XY_Shield: public ShieldBase
     int response_buffer_count;
     uint32_t _maxFrequency;
     float freq_value;
+    const char* response;
 };
 #endif

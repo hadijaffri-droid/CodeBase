@@ -6,12 +6,11 @@
 PWM_XY_Shield::PWM_XY_Shield(Stream& serial, const char* name) :ShieldBase(name), _ser(serial), usedPinsArr{0,1}, _maxFrequency(DEFAULT_MAX_FREQ_HZ)
 {
   response_buffer_count = 0;
-  snprintf(command_buffer, sizeof(command_buffer), "ON");
 }
 uint16_t PWM_XY_Shield:: getDutyCycle()
 {
   _ser.print("READ");
-  const char* response = readResponseBuffer();
+  response = readResponseBuffer();
   // pointer math below:
   // response contains frequeny (starting with F) and duty_buffer information (staring with D) separated by a null terminator '\0' 
   // response points to the start of the character buffer/array
@@ -35,7 +34,7 @@ bool PWM_XY_Shield::setFrequency(uint32_t hz)
   freq_value = hz;
   snprintf(command_buffer, sizeof(command_buffer), "F%03u", (unsigned)hz);
   _ser.print(command_buffer);
- const char* response=readResponseBuffer();
+  response=readResponseBuffer();
  if(strcmp(response,"DOWN")== 0)
  {
   return true;
@@ -49,7 +48,7 @@ bool PWM_XY_Shield::setDutyCycle(uint8_t percentage)
 {
   snprintf(command_buffer, sizeof(command_buffer), "D%03u",(unsigned)percentage);
  _ser.print(command_buffer);
- const char* response=readResponseBuffer();
+  response=readResponseBuffer();
  if(strcmp(response,"DOWN")== 0)
  {
   return true;
@@ -94,4 +93,14 @@ bool PWM_XY_Shield::setMode(int mode)
     {
         return false;
     }
+}
+void PWM_XY_Shield::pwm_enable()
+{
+  _ser.print("ON");
+  response = readResponseBuffer();
+}
+void PWM_XY_Shield::pwm_disable()
+{
+  _ser.print("OFF");
+  response= readResponseBuffer();
 }
