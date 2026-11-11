@@ -115,7 +115,7 @@ void loop()
 void moveStepsRelative(long steps_to_move, int direction)
 {
   //Stepper.setCurrentPosition(0);
-  Stepper.move(direction*steps_to_move);
+  Stepper.move(direction*steps_to_move); // set a relative target Position. Move adds current_position to the steps passed as arguments
   while(Stepper.distanceToGo() != 0)
   {
     if(Interrupt_button.get_pause_state())
