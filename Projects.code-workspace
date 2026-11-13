@@ -13,6 +13,9 @@
 		{
 			"name": "DC_Motor_Control",
 			"path": "DC_Motor_Control"
+		},
+		{
+			"path": "Stepper_Motor_Class"
 		}
 	],
 	"settings": {}
