@@ -83,5 +83,23 @@ void Stepper_Motor::move_steps_absolute(long steps_to_move,int direction)
         Stepper.run();
     }
 }
+void Stepper_Motor::oscillate_relative(int repititions,long distance_in_angle, int oscillation_start_direction)
+{
+    long angle_in_steps  = degree_to_steps(distance_in_angle);
+    for (int i = 0; i < repititions;i++)
+{
+  move_steps_relative(angle_in_steps,oscillation_start_direction); 
+  move_steps_relative(angle_in_steps,-oscillation_start_direction);
+}
 
+}
+void Stepper_Motor::oscillate_absolute(int repititions,long distance_in_angle, int oscillation_start_direction)
+{
+    long angle_in_steps = degree_to_steps(distance_in_angle);
+    for (int i = 0; i< repititions; i++)
+    {
+        move_steps_absolute(angle_in_steps,oscillation_start_direction);
+        move_steps_absolute(angle_in_steps,-oscillation_start_direction);
+    }
+}
 // figure out how to use your class object with AccelStepper Object
