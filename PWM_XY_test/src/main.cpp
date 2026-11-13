@@ -9,10 +9,11 @@ void setup() {
     delay(100);
   }
   Serial.println("Starting routine!!");
+  PWM.pwm_enable();
   Serial1.begin(9600);
   PWM.setMode(1);
-  PWM.setDutyCycle(76);
-  PWM.setFrequency(3800);
+  PWM.setDutyCycle(86);
+  PWM.setFrequency(6700);
   float f_val = PWM.getFrequency();
   Serial.println(f_val);
 }

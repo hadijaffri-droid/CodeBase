@@ -13,6 +13,10 @@
 		{
 			"name": "DC_Motor_Control",
 			"path": "DC_Motor_Control"
+		},
+		{
+			"name": "Stepper_Motor_Class",
+			"path": "../../../../../../../Stepper_Motor_Class"
 		}
 	],
 	"settings": {}
