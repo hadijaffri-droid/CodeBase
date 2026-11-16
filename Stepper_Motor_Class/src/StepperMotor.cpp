@@ -68,7 +68,7 @@ long Stepper_Motor::get_motor_steps_per_rotation () const
 
 void Stepper_Motor::move_steps_relative(long steps_to_move, int direction)
 {
-    Stepper.move(direction*steps_to_move);
+    Stepper.move(direction*steps_to_move); // move accepts relative steps as an argument. It adds the argument passed to the current position
     while (Stepper.distanceToGo()!= 0)
     {
         Stepper.run();
@@ -77,7 +77,7 @@ void Stepper_Motor::move_steps_relative(long steps_to_move, int direction)
 
 void Stepper_Motor::move_steps_absolute(long steps_to_move,int direction)
 {
-    Stepper.moveTo(direction*steps_to_move);
+    Stepper.moveTo(direction*steps_to_move); // move accepts absolute steps as an argument.
     while(Stepper.distanceToGo()!=0)
     {
         Stepper.run();

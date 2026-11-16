@@ -5,7 +5,7 @@
 class Stepper_Motor 
 {
  public:
- explicit Stepper_Motor(uint8_t step_pin,uint8_t direction_pin, uint8_t enabe_pin);
+ explicit Stepper_Motor(uint8_t step_pin,uint8_t direction_pin, uint8_t enable_pin);
  long get_motor_speed() const;
  long get_motor_max_speed() const;
  long get_motor_acceleration() const;
@@ -20,7 +20,8 @@ class Stepper_Motor
  long degree_to_steps(int degrees);
  void move_steps_relative(long steps_to_move,int direction);
  void move_steps_absolute(long steps_to_move,int direction);
- void Oscillate_Relative();
+ void oscillate_relative(int repititions,long distance_in_angle, int oscillation_start_direction);
+void  oscillate_absolute(int repititions,long distance_in_angle, int oscillation_start_direction);
  private:
  long motor_max_speed_steps_per_second;
  long motor_speed_steps_per_second;
