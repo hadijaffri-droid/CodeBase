@@ -10,10 +10,10 @@ class Stepper_Motor
  long get_motor_max_speed() const;
  long get_motor_acceleration() const;
  long get_motor_steps_per_rotation() const;
- void set_motor_speed(long speed);
- void set_motor_max_speed(long max_speed);
- void set_motor_acceleration(long acceleration);
- void set_motor_steps_per_rotation(long steps_per_rotation);
+ void set_motor_speed_steps_per_second(long speed = 100);
+ void set_motor_max_speed_steps_per_second(long max_speed = 100);
+ void set_motor_acceleration_steps_per_second_squared(long acceleration = 50);
+ void set_motor_steps_per_rotation(long steps_per_rotation = 1000);
  void initiliase_stepper() const;
  void stepper_motor_enable() const;
  void stepper_motor_disable() const;

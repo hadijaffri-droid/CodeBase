@@ -23,19 +23,19 @@ long Stepper_Motor::degree_to_steps(int degrees)
     return (get_motor_steps_per_rotation()*degrees) / 360;
 }
 
-void Stepper_Motor::set_motor_max_speed(long max_speed)
+void Stepper_Motor::set_motor_max_speed_steps_per_second(long max_speed)
 {
     motor_max_speed_steps_per_second = max_speed;
     Stepper.setMaxSpeed(motor_max_speed_steps_per_second);
 }
 
-void Stepper_Motor::set_motor_speed(long speed)
+void Stepper_Motor::set_motor_speed_steps_per_second(long speed)
 {
     motor_speed_steps_per_second = speed;
     Stepper.setSpeed(motor_speed_steps_per_second);
 }
 
-void Stepper_Motor::set_motor_acceleration(long acceleration)
+void Stepper_Motor::set_motor_acceleration_steps_per_second_squared(long acceleration )
 {
     motor_acceleration_steps_per_second_squared = acceleration;
     Stepper.setAcceleration(motor_acceleration_steps_per_second_squared);
