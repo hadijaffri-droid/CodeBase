@@ -1,6 +1,7 @@
 #include "StepperMotor.h"
 Stepper_Motor::Stepper_Motor(uint8_t step_pin,uint8_t direction_pin,uint8_t enable_pin):motor_step_pin(step_pin),motor_direction_pin(direction_pin),motor_enable_pin(enable_pin),Stepper(1,step_pin,direction_pin)
 {
+    Stepper.setCurrentPosition(0); // start with current position at 0 when creating the stepper object
 }
 
 void Stepper_Motor::initiliase_stepper() const
@@ -8,19 +9,21 @@ void Stepper_Motor::initiliase_stepper() const
     pinMode(motor_enable_pin,OUTPUT);
 }
 
-void Stepper_Motor::stepper_motor_enable() const
+void Stepper_Motor::motor_enable() const
 {
   digitalWrite(motor_enable_pin,HIGH);
 }
 
-void Stepper_Motor::stepper_motor_disable() const
+void Stepper_Motor::motor_disable() const
 {
     digitalWrite(motor_enable_pin,LOW);
 }
 
 long Stepper_Motor::degree_to_steps(int degrees)
 {
-    return (get_motor_steps_per_rotation()*degrees) / 360;
+    return round((get_motor_steps_per_rotation()*degrees) / 360.0);
+    // round returns the next integer if the fractional part is greater or equal to 0.5 
+    // returns the previous integer if the fractional part is less than 0.5
 }
 
 void Stepper_Motor::set_motor_max_speed_steps_per_second(long max_speed)
@@ -46,19 +49,19 @@ void Stepper_Motor::set_motor_steps_per_rotation(long steps_per_rotation)
     motor_steps_per_rotation = steps_per_rotation;
 }
 
-long Stepper_Motor::get_motor_max_speed() const
+long Stepper_Motor::get_motor_max_speed() 
 {
-    return motor_max_speed_steps_per_second;
+    return Stepper.maxSpeed();
 }
 
-long Stepper_Motor::get_motor_speed() const
+long Stepper_Motor::get_motor_speed()
 {
-    return motor_speed_steps_per_second;
+    return Stepper.speed();
 }
 
-long Stepper_Motor::get_motor_acceleration() const
+long Stepper_Motor::get_motor_acceleration() 
 {
-    return motor_acceleration_steps_per_second_squared;
+    return Stepper.acceleration();
 }
 
 long Stepper_Motor::get_motor_steps_per_rotation () const
@@ -66,40 +69,59 @@ long Stepper_Motor::get_motor_steps_per_rotation () const
     return motor_steps_per_rotation;
 }
 
-void Stepper_Motor::move_steps_relative(long steps_to_move, int direction)
+
+bool Stepper_Motor::is_in_target_position()
 {
-    Stepper.move(direction*steps_to_move); // move accepts relative steps as an argument. It adds the argument passed to the current position
-    while (Stepper.distanceToGo()!= 0)
+    return Stepper.currentPosition () == Stepper.targetPosition();
+}
+
+void Stepper_Motor:: run_stepper()
+{
+    Stepper.run();
+}
+
+void Stepper_Motor:: move_relative(long relative_steps_to_move, Direction direction) 
+{
+    switch(direction)
     {
-        Stepper.run();
+        case clockwise:
+        Stepper.move(-1*relative_steps_to_move);
+        break;
+        case counter_clockwise:
+        Stepper.move(relative_steps_to_move);
+        break;
     }
 }
 
-void Stepper_Motor::move_steps_absolute(long steps_to_move,int direction)
+void Stepper_Motor::move_absolute(long position, Direction direction)
 {
-    Stepper.moveTo(direction*steps_to_move); // move accepts absolute steps as an argument.
-    while(Stepper.distanceToGo()!=0)
+    switch(direction)
     {
-        Stepper.run();
+        case clockwise:
+        Stepper.moveTo(-1*position);
+        break;
+        case counter_clockwise:
+        Stepper.moveTo(position);
+        break;
     }
-}
-void Stepper_Motor::oscillate_relative(int repititions,long distance_in_angle, int oscillation_start_direction)
-{
-    long angle_in_steps  = degree_to_steps(distance_in_angle);
-    for (int i = 0; i < repititions;i++)
-{
-  move_steps_relative(angle_in_steps,oscillation_start_direction); 
-  move_steps_relative(angle_in_steps,-oscillation_start_direction);
 }
 
-}
-void Stepper_Motor::oscillate_absolute(int repititions,long distance_in_angle, int oscillation_start_direction)
+void Stepper_Motor:: move_angle_relative(int degrees)
 {
-    long angle_in_steps = degree_to_steps(distance_in_angle);
-    for (int i = 0; i< repititions; i++)
-    {
-        move_steps_absolute(angle_in_steps,oscillation_start_direction);
-        move_steps_absolute(angle_in_steps,-oscillation_start_direction);
-    }
+    Stepper.move(degree_to_steps(degrees));
 }
-// figure out how to use your class object with AccelStepper Object
+
+void Stepper_Motor:: move_angle_absolute(int degrees)
+{
+    Stepper.moveTo(degree_to_steps(degrees));
+}
+
+long Stepper_Motor::get_current_position()
+{
+    return Stepper.currentPosition();
+}
+
+void Stepper_Motor::set_position(long position)
+{
+    Stepper.setCurrentPosition(position);
+}

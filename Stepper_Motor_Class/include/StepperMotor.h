@@ -1,27 +1,38 @@
-#ifndef STEPPER_MOTR_H
+#ifndef STEPPER_MOTOR_H
 #define STEPPER_MOTOR_H
 #include <Arduino.h>
 #include <AccelStepper.h>
+#include <bits/stdc++.h>
+
 class Stepper_Motor 
 {
  public:
  explicit Stepper_Motor(uint8_t step_pin,uint8_t direction_pin, uint8_t enable_pin);
- long get_motor_speed() const;
- long get_motor_max_speed() const;
- long get_motor_acceleration() const;
+ enum Direction 
+ {
+    clockwise,
+    counter_clockwise
+ };
+ long get_motor_speed();
+ long get_motor_max_speed();
+ long get_motor_acceleration();
  long get_motor_steps_per_rotation() const;
  void set_motor_speed_steps_per_second(long speed = 100);
  void set_motor_max_speed_steps_per_second(long max_speed = 100);
  void set_motor_acceleration_steps_per_second_squared(long acceleration = 50);
  void set_motor_steps_per_rotation(long steps_per_rotation = 1000);
+ void move_relative(long relative_steps_to_move,Direction direction); // only sets a relative target Position, must be used alongside run stepper to run the motor
+ void move_absolute(long position,Direction direction); // only sets an absolute target Position, must be sued alongside run stepper to run the motor
  void initiliase_stepper() const;
- void stepper_motor_enable() const;
- void stepper_motor_disable() const;
+ void motor_enable() const;
+ void motor_disable() const;
  long degree_to_steps(int degrees);
- void move_steps_relative(long steps_to_move,int direction);
- void move_steps_absolute(long steps_to_move,int direction);
- void oscillate_relative(int repititions,long distance_in_angle, int oscillation_start_direction);
-void  oscillate_absolute(int repititions,long distance_in_angle, int oscillation_start_direction);
+ bool is_in_target_position();
+ void run_stepper();
+ void move_angle_relative(int degrees);
+ void move_angle_absolute(int degrees);
+ long get_current_position();
+ void set_position(long position);
  private:
  long motor_max_speed_steps_per_second;
  long motor_speed_steps_per_second;
