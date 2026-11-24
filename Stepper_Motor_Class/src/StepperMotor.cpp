@@ -106,14 +106,30 @@ void Stepper_Motor::move_absolute(long position, Direction direction)
     }
 }
 
-void Stepper_Motor:: move_angle_relative(int degrees)
+void Stepper_Motor:: move_angle_relative(int degrees, Direction direction)
 {
-    Stepper.move(degree_to_steps(degrees));
+    switch(direction)
+    {
+        case clockwise:
+        Stepper.move(-1*degree_to_steps(degrees));
+        break;
+        case counter_clockwise:
+        Stepper.move(degree_to_steps(degrees));
+        break;
+    }
 }
 
-void Stepper_Motor:: move_angle_absolute(int degrees)
+void Stepper_Motor:: move_angle_absolute(int degrees, Direction direction)
 {
-    Stepper.moveTo(degree_to_steps(degrees));
+    switch(direction)
+    {
+        case clockwise:
+        Stepper.moveTo(-1*degree_to_steps(degrees));
+        break;
+        case counter_clockwise:
+        Stepper.moveTo(degree_to_steps(degrees));
+        break;
+    }
 }
 
 long Stepper_Motor::get_current_position()

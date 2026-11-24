@@ -45,8 +45,8 @@ void loop()
   wait_until_done();
   delay(1000);
 
-  Serial.println("3. Quarter turn (90 degrees)");
-  _Stepper.move_angle_relative(90);
+  Serial.println("3. Quarter turn clockwise (90 degrees)");
+  _Stepper.move_angle_relative(90,Stepper_Motor::clockwise);
   wait_until_done();
   delay(1000);
 

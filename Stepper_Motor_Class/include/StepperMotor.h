@@ -29,8 +29,8 @@ class Stepper_Motor
  long degree_to_steps(int degrees);
  bool is_in_target_position();
  void run_stepper();
- void move_angle_relative(int degrees);
- void move_angle_absolute(int degrees);
+ void move_angle_relative(int degrees,Direction direction);
+ void move_angle_absolute(int degrees,Direction direction);
  long get_current_position();
  void set_position(long position);
  private:
