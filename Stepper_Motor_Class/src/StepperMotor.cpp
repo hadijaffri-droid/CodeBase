@@ -1,7 +1,27 @@
 #include "StepperMotor.h"
-Stepper_Motor::Stepper_Motor(uint8_t step_pin,uint8_t direction_pin,uint8_t enable_pin):motor_step_pin(step_pin),motor_direction_pin(direction_pin),motor_enable_pin(enable_pin),Stepper(1,step_pin,direction_pin)
+Stepper_Motor::Stepper_Motor(const char* name,uint8_t step_pin,uint8_t direction_pin,uint8_t enable_pin):ShieldBase(name),motor_step_pin(step_pin),motor_direction_pin(direction_pin),motor_enable_pin(enable_pin),Stepper(1,step_pin,direction_pin),used_pins_arr{step_pin,direction_pin,enable_pin}
 {
     Stepper.setCurrentPosition(0); // start with current position at 0 when creating the stepper object
+}
+
+const char* Stepper_Motor::getName () const
+{
+    return ShieldBase::getName();
+}
+
+void Stepper_Motor::setName(const char* newName)
+{
+    ShieldBase::setName(newName);
+}
+
+const uint8_t* Stepper_Motor::getUsedPins() const
+{
+    return used_pins_arr;
+}
+
+uint8_t Stepper_Motor::getUsedPinsCount () const
+{
+    return 3;
 }
 
 void Stepper_Motor::initiliase_stepper() const
@@ -21,50 +41,47 @@ void Stepper_Motor::motor_disable() const
 
 long Stepper_Motor::degree_to_steps(int degrees)
 {
-    return round((get_motor_steps_per_rotation()*degrees) / 360.0);
+    return round((get_steps_per_rotation()*degrees) / 360.0);
     // round returns the next integer if the fractional part is greater or equal to 0.5 
     // returns the previous integer if the fractional part is less than 0.5
 }
 
-void Stepper_Motor::set_motor_max_speed_steps_per_second(long max_speed)
+void Stepper_Motor::set_max_speed_steps_per_second(long max_speed)
 {
-    motor_max_speed_steps_per_second = max_speed;
-    Stepper.setMaxSpeed(motor_max_speed_steps_per_second);
+    Stepper.setMaxSpeed(max_speed);
 }
 
-void Stepper_Motor::set_motor_speed_steps_per_second(long speed)
+void Stepper_Motor::set_speed_steps_per_second(long speed)
 {
-    motor_speed_steps_per_second = speed;
-    Stepper.setSpeed(motor_speed_steps_per_second);
+    Stepper.setSpeed(speed);
 }
 
-void Stepper_Motor::set_motor_acceleration_steps_per_second_squared(long acceleration )
+void Stepper_Motor::set_acceleration_steps_per_second_squared(long acceleration )
 {
-    motor_acceleration_steps_per_second_squared = acceleration;
-    Stepper.setAcceleration(motor_acceleration_steps_per_second_squared);
+    Stepper.setAcceleration(acceleration);
 }
 
-void Stepper_Motor::set_motor_steps_per_rotation(long steps_per_rotation)
+void Stepper_Motor::set_steps_per_rotation(long steps_per_rotation)
 {
     motor_steps_per_rotation = steps_per_rotation;
 }
 
-long Stepper_Motor::get_motor_max_speed() 
+long Stepper_Motor::get_max_speed() 
 {
     return Stepper.maxSpeed();
 }
 
-long Stepper_Motor::get_motor_speed()
+long Stepper_Motor::get_speed()
 {
     return Stepper.speed();
 }
 
-long Stepper_Motor::get_motor_acceleration() 
+long Stepper_Motor::get_acceleration() 
 {
     return Stepper.acceleration();
 }
 
-long Stepper_Motor::get_motor_steps_per_rotation () const
+long Stepper_Motor::get_steps_per_rotation () const
 {
     return motor_steps_per_rotation;
 }
@@ -75,7 +92,7 @@ bool Stepper_Motor::is_in_target_position()
     return Stepper.currentPosition () == Stepper.targetPosition();
 }
 
-void Stepper_Motor:: run_stepper()
+void Stepper_Motor:: run()
 {
     Stepper.run();
 }

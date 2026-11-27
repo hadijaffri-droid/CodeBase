@@ -12,24 +12,24 @@ const long motor_steps_per_rotation = 10000;
 
 /*Create Motor Object*/
 
-Stepper_Motor _Stepper(motor_step_pin,motor_direction_pin,motor_enable_pin);
+Stepper_Motor _Stepper("Stepper",motor_step_pin,motor_direction_pin,motor_enable_pin);
 
 void setup() 
 {
    Serial.begin(9600);
   _Stepper.initiliase_stepper();
   _Stepper.motor_enable();
-  _Stepper.set_motor_max_speed_steps_per_second(motor_max_speed_steps_per_second);
-  _Stepper.set_motor_speed_steps_per_second(motor_speed_steps_per_second);
-  _Stepper.set_motor_acceleration_steps_per_second_squared(motor_acceleration_steps_per_second_squared);
-  _Stepper.set_motor_steps_per_rotation(motor_steps_per_rotation);
+  _Stepper.set_max_speed_steps_per_second(motor_max_speed_steps_per_second);
+  _Stepper.set_speed_steps_per_second(motor_speed_steps_per_second);
+  _Stepper.set_acceleration_steps_per_second_squared(motor_acceleration_steps_per_second_squared);
+  _Stepper.set_steps_per_rotation(motor_steps_per_rotation);
 }
 
 void wait_until_done()
 {
   while (!_Stepper.is_in_target_position())
   {
-    _Stepper.run_stepper();
+    _Stepper.run();
   }
 }
 
