@@ -29,6 +29,7 @@ class PWM_XY_Shield : public ShieldBase
     }
 
     // ---- setters ----
+    void setName(const char* newName) override;
     bool setFrequency(uint32_t hz);
     bool setDutyCycle(uint8_t percentage);
     bool setMode(int mode);
@@ -38,7 +39,8 @@ class PWM_XY_Shield : public ShieldBase
     // ---- getters ----
     float getFrequency();
     uint16_t getDutyCycle();
-
+    const char* getName() const override;
+    const uint8_t* getUsedPins() const override;
     // ---- serial helpers ----
     const char* readResponseBuffer();
     void probe(const char* cmd);
@@ -58,7 +60,7 @@ class PWM_XY_Shield : public ShieldBase
     const char* response;
 
     // shared by setFrequency, getFrequency and getDutyCycle
-    static const int MAX_ATTEMPTS = 10;
+    static const int MAX_ATTEMPTS = 10; // I chose 10 randomly, during testing it was observed that the max attemps go uptil 3 tries ( to be safe I set it to 10)
     String read_commands[2] = {"read", "READ"};   // [0] = LPWM module, [1] = older module
 
     // shared by getFrequency and getDutyCycle

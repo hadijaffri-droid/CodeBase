@@ -17,9 +17,4 @@ void setup() {
 void loop() 
 {
 }
-/*
-For the XY LPWM module read in lower case returns frequency and duty information
-XY LPWM returns frequency information appended with Hz.
-read is unreliable. Does not return the information correctly all the time
-The duty cylce is set with Captial D in both the modules.
-*/
+

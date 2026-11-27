@@ -8,6 +8,21 @@ PWM_XY_Shield::PWM_XY_Shield(Stream& serial, const char* name)
 }
 
 // -------------------------------------------------------------------- getters
+const char* PWM_XY_Shield::getName() const
+{
+  return ShieldBase::getName();
+}
+
+const uint8_t* PWM_XY_Shield::getUsedPins() const
+{
+  return usedPinsArr;
+}
+
+uint8_t PWM_XY_Shield:: getUsedPinsCount() const
+{
+  return 3;
+}
+
 // Sends "read" / "READ" alternately, finds "D<digits>" in the reply and returns the duty.
 uint16_t PWM_XY_Shield::getDutyCycle()
 {
@@ -17,7 +32,7 @@ uint16_t PWM_XY_Shield::getDutyCycle()
     Serial.print(attempt + 1);
     field_text = "";
 
-    // alternate between both read commands so each is sent an equal number of times
+    // alternate between both read commands so each is sent an equal number of times (is there a better way ?)
     if (attempt % 2 == 0)
     {
       _ser.print(read_commands[0]);
@@ -130,7 +145,7 @@ float PWM_XY_Shield::getFrequency()
   // skip the leading 'F' and read the number; unit_start points at the first character after it
   number_start = field_text.c_str() + 1;
   char* unit_start;
-  float freq_hz = strtof(number_start, &unit_start);
+  float freq_hz = strtof(number_start, &unit_start); // strtof = string to float
 
   // no digits could be read
   if (unit_start == number_start)
@@ -151,6 +166,11 @@ float PWM_XY_Shield::getFrequency()
 }
 
 // -------------------------------------------------------------------- setters
+void PWM_XY_Shield::setName(const char* newName)
+{
+  ShieldBase::setName(newName);
+}
+
 // Builds the command for the module's range format, then retries until the module answers DOWN.
 bool PWM_XY_Shield::setFrequency(uint32_t hz)
 {
@@ -161,9 +181,9 @@ bool PWM_XY_Shield::setFrequency(uint32_t hz)
 
   // Command format per range:
   //   1 - 999 Hz       -> F%03u      e.g. 100    -> "F100"
-  //   1 - 9.99 kHz     -> F%u.%02u   e.g. 3600   -> "F3.60"   (10 Hz resolution)
-  //   10 - 99.9 kHz    -> F%u.%u     e.g. 68300  -> "F68.3"   (100 Hz resolution)
-  //   100 kHz and up   -> F%u.%u.%u  e.g. 105000 -> "F1.0.5"  (1 kHz resolution)
+  //   1 - 9.99 kHz     -> F%u.%02u   e.g. 3600   -> "F3.60"   
+  //   10 - 99.9 kHz    -> F%u.%u     e.g. 68300  -> "F68.3"   
+  //   100 kHz and up   -> F%u.%u.%u  e.g. 105000 -> "F1.0.5" 
   const uint32_t khz          = hz / 1000;   // whole kHz
   const uint32_t hz_below_khz = hz % 1000;   // leftover Hz (0..999)
 
@@ -194,13 +214,13 @@ bool PWM_XY_Shield::setFrequency(uint32_t hz)
 
   for (int attempt = 0; attempt < MAX_ATTEMPTS; attempt++)
   {
-    while (_ser.available()) _ser.read();   // drop stale bytes
+    while (_ser.available()) _ser.read();   // drop garbage bytes
 
     _ser.print(command_buffer);
     response = readResponseBuffer();
 
     // the LPWM module may reply "FAIL\nDOWN\n", so DOWN anywhere in the reply counts as success
-    if (strstr(response, "DOWN") != nullptr)
+    if (strstr(response, "DOWN") != nullptr) // strstr = string search, searches for a substring within a string, returns a pointer to the start of the substring if found
     {
       freq_value = hz;
       return true;
@@ -279,6 +299,8 @@ const char* PWM_XY_Shield::readResponseBuffer()
 }
 
 // Debug helper: sends one command and prints the raw reply to the console.
+// This was used to test what the different version of the PWM modules return when they are given commands in different formats
+// List of commands = "READ","F1.04","F1004","read","D054","d054","f1.04","ON","OFF"
 void PWM_XY_Shield::probe(const char* command)
 {
   while (_ser.available())
